@@ -1,3 +1,5 @@
+import { carregarNavbar } from './navbar.js';
+
 import { carregarDepoimentos, enviarFormularioContato } from './api.js';
 import {
   renderizarDepoimentos,
@@ -5,7 +7,6 @@ import {
   atualizarContadorCarrinho,
 } from './ui.js';
 import './styles.js';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 function adicionarCarrinho(nome, preco, descricao, id, quantidade = null) {
   let qtd = Number(quantidade);
@@ -110,13 +111,12 @@ function inicializarTema() {
     aplicarTema(e.target.value);
   });
 }
+inicializarTema();
 
 document.addEventListener('DOMContentLoaded', async () => {
+  carregarNavbar();
   atualizarContadorCarrinho();
   calcularTotal();
-
-  // Inicializa o sistema de temas
-  inicializarTema();
 
   // Depoimentos (index.html)
   const listaDepo = document.getElementById('lista-depoimentos');
@@ -241,3 +241,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 });
+
+// Expõe no escopo global para o script inline do carrinho.html
+window.atualizarContadorCarrinho = atualizarContadorCarrinho;

@@ -17,6 +17,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bootstrap": "^5.3.8",
     "date-fns": "^4.1.0"
   },
   "devDependencies": {
