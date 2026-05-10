@@ -1,3 +1,4 @@
+import 'bootstrap/dist/js/bootstrap.bundle';
 import { carregarNavbar } from './navbar';
 import {
   carregarDepoimentos,
@@ -96,7 +97,7 @@ function calcularTotal(): void {
     });
   }
 
-  document.querySelectorAll<HTMLElement>('#contador-carrinho').forEach((el) => {
+  document.querySelectorAll<HTMLElement>('.contador-carrinho').forEach((el) => {
     el.textContent = `${totalItens}`;
   });
 }

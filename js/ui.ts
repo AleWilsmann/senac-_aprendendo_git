@@ -63,7 +63,7 @@ export function atualizarContadorCarrinho(): void {
     0
   );
 
-  document.querySelectorAll<HTMLElement>('#contador-carrinho').forEach((el) => {
+  document.querySelectorAll<HTMLElement>('.contador-carrinho').forEach((el) => {
     el.textContent = `${totalItens}`;
   });
 }

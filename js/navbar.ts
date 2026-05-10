@@ -22,7 +22,7 @@ export function carregarNavbar() {
             <li class="nav-item">
               <a class="nav-link" href="carrinho.html">
                 <i class="bi bi-cart3"></i> Carrinho
-                <span id="contador-carrinho" class="badge bg-primary">0</span>
+                <span class="contador-carrinho badge bg-primary">0</span>
               </a>
             </li>
           </ul>
@@ -31,5 +31,10 @@ export function carregarNavbar() {
     </nav>
   `;
 
-  document.body.insertAdjacentHTML('afterbegin', navbar);
+  const container = document.getElementById('navbar-container');
+  if (container) {
+    container.innerHTML = navbar;
+  } else {
+    document.body.insertAdjacentHTML('afterbegin', navbar);
+  }
 }
