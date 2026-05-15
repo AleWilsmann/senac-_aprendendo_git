@@ -11,15 +11,10 @@ import {
   atualizarContadorCarrinho,
 } from './ui';
 import './styles';
+import { inicializarTema } from './tema';
+import type { CarrinhoItem } from './cart';
 
 declare const bootstrap: any;
-
-interface CarrinhoItem {
-  nome: string;
-  preco: number;
-  descricao: string;
-  quantidade: number;
-}
 
 function parseNumber(value: string | null | undefined, fallback = 1): number {
   const parsed = Number(value);
@@ -63,75 +58,64 @@ function adicionarCarrinho(
   if (input) input.value = '1';
 }
 
-function calcularTotal(): void {
-  const checkboxes = Array.from(
-    document.querySelectorAll<HTMLInputElement>('.item-produto')
-  );
-  const quantidades = Array.from(
-    document.querySelectorAll<HTMLInputElement>('.qtd-produto')
-  );
+function construirModalBody(
+  modalBody: HTMLElement,
+  nome: string,
+  descricao: string,
+  preco: number,
+  id: string
+): void {
+  // Imagem
+  const divImagem = document.createElement('div');
+  divImagem.className = 'text-center mb-3';
+  const img = document.createElement('img');
+  img.src = 'http://lorempixel.com.br/400/300';
+  img.className = 'img-fluid rounded';
+  img.alt = nome;
+  divImagem.appendChild(img);
 
-  const total = checkboxes.reduce((acc, checkbox, index) => {
-    if (!checkbox.checked) return acc;
-    return (
-      acc +
-      parseNumber(checkbox.value) * parseNumber(quantidades[index]?.value, 1)
-    );
-  }, 0);
+  // Descrição
+  const h5 = document.createElement('h5');
+  h5.textContent = 'Descrição';
 
-  let totalItens = checkboxes.reduce((acc, checkbox, index) => {
-    if (!checkbox.checked) return acc;
-    return acc + parseNumber(quantidades[index]?.value, 1);
-  }, 0);
+  const p = document.createElement('p');
+  p.textContent = descricao;
 
-  const carrinho = JSON.parse(
-    localStorage.getItem('carrinho') || '[]'
-  ) as CarrinhoItem[];
-  totalItens += carrinho.reduce((acc, produto) => acc + produto.quantidade, 0);
-
-  const valorTotalEl = document.getElementById('valor-total');
-  if (valorTotalEl) {
-    valorTotalEl.textContent = total.toLocaleString('pt-BR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-  }
-
-  document.querySelectorAll<HTMLElement>('.contador-carrinho').forEach((el) => {
-    el.textContent = `${totalItens}`;
+  // Preço
+  const h4 = document.createElement('h4');
+  h4.className = 'text-success mt-4';
+  h4.textContent = preco.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
   });
-}
 
-function aplicarTema(tema: string): void {
-  document.body.classList.remove('tema-dark', 'tema-ocean', 'tema-forest');
-  if (tema) {
-    document.body.classList.add(tema);
-  }
-  localStorage.setItem('tema-selecionado', tema);
-}
+  // Quantidade
+  const divQuantidade = document.createElement('div');
+  divQuantidade.className = 'mt-3';
 
-function inicializarTema(): void {
-  const seletorTema = document.getElementById(
-    'seletor-tema'
-  ) as HTMLSelectElement | null;
-  if (!seletorTema) return;
+  const label = document.createElement('label');
+  label.className = 'form-label';
+  label.textContent = 'Quantidade:';
+  label.htmlFor = `qtd-modal-${id}`;
 
-  const temaSalvo = localStorage.getItem('tema-selecionado') ?? '';
-  seletorTema.value = temaSalvo;
-  aplicarTema(temaSalvo);
+  const input = document.createElement('input');
+  input.type = 'number';
+  input.className = 'form-control w-25 d-inline-block';
+  input.id = `qtd-modal-${id}`;
+  input.value = '1';
+  input.min = '1';
 
-  seletorTema.addEventListener('change', (event) => {
-    const target = event.target as HTMLSelectElement;
-    aplicarTema(target.value);
-  });
+  divQuantidade.append(label, input);
+
+  modalBody.replaceChildren(divImagem, h5, p, h4, divQuantidade);
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
   carregarNavbar();
   inicializarTema();
   atualizarContadorCarrinho();
-  calcularTotal();
 
+  // Depoimentos
   const listaDepo = document.getElementById('lista-depoimentos');
   if (listaDepo) {
     try {
@@ -144,6 +128,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  // Formulário de contato
   const formContato = document.getElementById(
     'form-contato'
   ) as HTMLFormElement | null;
@@ -191,6 +176,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // Botões de adicionar ao carrinho
   document
     .querySelectorAll<HTMLButtonElement>('.adicionar-ao-carrinho')
     .forEach((botao) => {
@@ -199,11 +185,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const preco = parseNumber(botao.dataset.preco, 0);
         const descricao = botao.dataset.descricao ?? '';
         const id = botao.dataset.id ?? '';
-
         adicionarCarrinho(nome, preco, descricao, id);
       });
     });
 
+  // Modal de detalhe do produto
   const modalProduto = document.getElementById(
     'modalDetalheProduto'
   ) as HTMLElement | null;
@@ -224,21 +210,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const modalBody = modalProduto.querySelector<HTMLElement>('.modal-body');
       if (modalBody) {
-        modalBody.innerHTML = `
-                <div class="text-center mb-3">
-                    <img src="http://lorempixel.com.br/400/300" class="img-fluid rounded" alt="${nome}">
-                </div>
-                <h5>Descrição</h5>
-                <p>${descricao}</p>
-                <h4 class="text-success mt-4">
-                    ${preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                </h4>
-                <div class="mt-3">
-                    <label class="form-label">Quantidade:</label>
-                    <input type="number" class="form-control w-25 d-inline-block" 
-                           id="qtd-modal-${id}" value="1" min="1">
-                </div>
-            `;
+        construirModalBody(modalBody, nome, descricao, preco, id);
       }
 
       const btnAdicionarModal = modalProduto.querySelector<HTMLButtonElement>(
@@ -261,7 +233,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         adicionarCarrinho(nome, preco, descricao, id, qtd);
         bootstrap.Modal.getInstance(modalProduto).hide();
-
         mostrarAlerta(
           document.body,
           `✅ ${qtd} × ${nome} adicionado(s) ao carrinho!`,

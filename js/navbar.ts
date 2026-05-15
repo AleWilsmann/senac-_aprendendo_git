@@ -18,7 +18,15 @@ export function carregarNavbar() {
               <a class="nav-link" href="contato.html">Contato</a>
             </li>
           </ul>
-          <ul class="navbar-nav">
+          <ul class="navbar-nav align-items-center">
+            <li class="nav-item me-2 d-flex align-items-center">
+              <select id="seletor-tema" class="form-select form-select-sm" aria-label="Selecione um tema">
+                <option value="">Tema Padrão</option>
+                <option value="tema-dark">Dark</option>
+                <option value="tema-ocean">Ocean</option>
+                <option value="tema-forest">Forest</option>
+              </select>
+            </li>
             <li class="nav-item">
               <a class="nav-link" href="carrinho.html">
                 <i class="bi bi-cart3"></i> Carrinho
@@ -37,4 +45,12 @@ export function carregarNavbar() {
   } else {
     document.body.insertAdjacentHTML('afterbegin', navbar);
   }
+  const links = document.querySelectorAll('.nav-link');
+  links.forEach((link) => {
+    const href = link.getAttribute('href');
+    if (href && window.location.pathname.endsWith(href)) {
+      link.classList.add('active');
+      link.setAttribute('aria-current', 'page');
+    }
+  });
 }

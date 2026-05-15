@@ -1,6 +1,6 @@
 import { atualizarContadorCarrinho } from './ui';
 
-interface CarrinhoItem {
+export interface CarrinhoItem {
   nome: string;
   preco: number;
   descricao: string;
@@ -18,17 +18,15 @@ function formatarMoeda(valor: number): string {
   });
 }
 
-function criarLinhaCarrinho(
-  produto: CarrinhoItem,
-  index: number
-): HTMLTableRowElement {
+function criarLinhaCarrinho(produto: CarrinhoItem): HTMLTableRowElement {
   const linha = document.createElement('tr');
 
   const colunaProduto = document.createElement('td');
-  colunaProduto.innerHTML = `
-    <strong>${produto.nome}</strong><br>
-    <small>${produto.descricao}</small>
-  `;
+  const strong = document.createElement('strong');
+  strong.textContent = produto.nome;
+  const small = document.createElement('small');
+  small.textContent = produto.descricao;
+  colunaProduto.append(strong, document.createElement('br'), small);
 
   const colunaPreco = document.createElement('td');
   colunaPreco.textContent = formatarMoeda(produto.preco);
@@ -44,7 +42,7 @@ function criarLinhaCarrinho(
   botaoRemover.type = 'button';
   botaoRemover.className = 'btn btn-danger btn-sm';
   botaoRemover.textContent = 'Remover';
-  botaoRemover.addEventListener('click', () => removerItem(index));
+  botaoRemover.addEventListener('click', () => removerItem(produto.nome));
   colunaAcao.appendChild(botaoRemover);
 
   linha.append(
@@ -66,34 +64,28 @@ function carregarCarrinho(): void {
   const carrinho = getCarrinho();
   lista.innerHTML = '';
 
-  const total = carrinho.reduce((acc, produto, index) => {
-    lista.appendChild(criarLinhaCarrinho(produto, index));
+  const total = carrinho.reduce((acc, produto) => {
+    lista.appendChild(criarLinhaCarrinho(produto));
     return acc + produto.preco * produto.quantidade;
   }, 0);
 
   totalSpan.textContent = formatarMoeda(total);
 }
 
-function removerItem(index: number): void {
+function removerItem(nome: string): void {
   const carrinho = getCarrinho();
-  if (index < 0 || index >= carrinho.length) return;
 
-  const nomeProduto = carrinho[index].nome;
-  if (
-    !confirm(`Tem certeza que deseja remover "${nomeProduto}" do carrinho?`)
-  ) {
+  if (!confirm(`Tem certeza que deseja remover "${nome}" do carrinho?`)) {
     return;
   }
 
-  carrinho.splice(index, 1);
-  localStorage.setItem('carrinho', JSON.stringify(carrinho));
+  const atualizado = carrinho.filter((item) => item.nome !== nome);
+  localStorage.setItem('carrinho', JSON.stringify(atualizado));
 
   carregarCarrinho();
   atualizarContadorCarrinho();
 }
 
-function inicializarCarrinho(): void {
+document.addEventListener('DOMContentLoaded', () => {
   carregarCarrinho();
-}
-
-document.addEventListener('DOMContentLoaded', inicializarCarrinho);
+});

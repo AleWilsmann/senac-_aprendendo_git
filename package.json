@@ -2,8 +2,7 @@
   "name": "frontend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . ",
@@ -22,6 +21,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/node": "^25.8.0",
     "eslint": "^10.1.0",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.4.0",
